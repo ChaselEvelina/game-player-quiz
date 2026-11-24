@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>测测你是哪种游戏玩家</title>
+<style>
+  :root{
+    --bg:#FFF3D6;
+    --bg-dot:#FFE1A8;
+    --card:#FFFFFF;
+    --ink:#1A2332;
+    --muted:#5B6577;
+    --line:#1A2332;
+    --coral:#FF4D2E;
+    --coral-dark:#D93A1F;
+    --teal:#00A896;
+    --yellow:#FFC91F;
+    --sky:#3A86FF;
+    --pink:#FF6B9D;
+    --shadow:6px 6px 0 #1A2332;
+    --shadow-sm:4px 4px 0 #1A2332;
+    --radius:20px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#121826;
+      --bg-dot:#1E2A44;
+      --card:#1C2538;
+      --ink:#F4F6FB;
+      --muted:#A8B2C6;
+      --line:#0B0F1A;
+      --shadow:6px 6px 0 #0B0F1A;
+      --shadow-sm:4px 4px 0 #0B0F1A;
+    }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1.6px, transparent 1.6px);
+    background-size:22px 22px;
+    color:var(--ink);
+    line-height:1.6;
+    min-height:100dvh;
+  }
+  button{font-family:inherit;cursor:pointer;min-height:48px}
+  .wrap{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+  .screen{display:none;animation:pop .35s ease both}
+  .screen.active{display:block}
+  @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){.screen{animation:none}*{transition:none!important}}
+
+  /* ---------- HOME ---------- */
+  .badge-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:18px}
+  .pill{
+    font-size:13px;font-weight:700;padding:6px 12px;border:2px solid var(--line);
+    border-radius:999px;background:var(--card);box-shadow:3px 3px 0 var(--line);
+  }
+  .pill.coral{background:var(--yellow)}
+  .pill.teal{background:#7FE7D2}
+  @media (prefers-color-scheme: dark){.pill.coral{color:#1A2332}.pill.teal{color:#1A2332}}
+  .hero-card{
+    background:var(--card);border:3px solid var(--line);border-radius:28px;
+    box-shadow:var(--shadow);padding:28px 22px 26px;text-align:center;overflow:hidden;position:relative;
+  }
+  .hero-card::before{
+    content:"";position:absolute;inset:0 0 auto 0;height:10px;
+    background:repeating-linear-gradient(90deg,var(--coral) 0 28px,var(--yellow) 28px 56px,var(--teal) 56px 84px,var(--sky) 84px 112px);
+  }
+  .controller{width:92px;height:92px;margin:8px auto 6px;display:block}
+  h1{font-size:36px;line-height:1.15;margin:10px 0 10px;font-weight:900;letter-spacing:.5px}
+  h1 .hl{background:linear-gradient(transparent 62%, var(--yellow) 62%);padding:0 4px;border-radius:4px}
+  @media (prefers-color-scheme: dark){h1 .hl{color:#1A2332;background:var(--yellow)}}
+  .lead{color:var(--muted);font-size:16px;margin:0 auto 8px;max-width:400px}
+  .lead strong{color:var(--ink)}
+  .types-preview{margin:22px 0 6px}
+  .types-preview p{font-size:13px;font-weight:800;letter-spacing:2px;color:var(--muted);margin:0 0 12px}
+  .type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .type-chip{
+    border:2.5px solid var(--line);border-radius:16px;padding:12px 6px 10px;background:var(--bg);
+    font-weight:800;font-size:14px;line-height:1.3;
+  }
+  .type-chip span{display:block;font-size:26px;margin-bottom:4px}
+  .type-chip small{display:block;font-weight:600;color:var(--muted);font-size:11px;margin-top:2px}
+  .btn-primary{
+    display:block;width:100%;margin-top:22px;border:3px solid var(--line);border-radius:18px;
+    background:var(--coral);color:#fff;font-size:19px;font-weight:900;letter-spacing:1px;
+    padding:16px 20px;box-shadow:var(--shadow-sm);transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn-primary:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--line)}
+  .btn-teal{background:var(--teal)}
+  .btn-ghost{
+    display:block;width:100%;margin-top:12px;border:3px solid var(--line);border-radius:18px;
+    background:var(--card);color:var(--ink);font-size:16px;font-weight:800;padding:13px 20px;
+    box-shadow:var(--shadow-sm);transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn-ghost:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--line)}
+  .fine{font-size:12.5px;color:var(--muted);text-align:center;margin-top:14px}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .q-count{font-weight:900;font-size:15px}
+  .q-count b{color:var(--coral);font-size:20px}
+  .btn-back{
+    border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;
+    font-size:13px;font-weight:700;padding:6px 14px;min-height:36px;box-shadow:2px 2px 0 var(--line);
+  }
+  .btn-back:disabled{opacity:.35;box-shadow:none}
+  .progress{height:14px;border:2.5px solid var(--line);border-radius:999px;background:var(--card);overflow:hidden;margin-bottom:18px}
+  .progress-bar{height:100%;width:0%;background:repeating-linear-gradient(45deg,var(--coral) 0 14px,#FF7355 14px 28px);border-radius:999px;transition:width .35s ease}
+  .q-card{background:var(--card);border:3px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:24px 20px 20px}
+  .q-tag{display:inline-block;font-size:12px;font-weight:800;letter-spacing:1px;background:var(--sky);color:#fff;border:2px solid var(--line);border-radius:999px;padding:3px 12px;margin-bottom:12px}
+  .q-text{font-size:21px;font-weight:900;line-height:1.45;margin:0 0 18px}
+  .options{display:flex;flex-direction:column;gap:12px}
+  .opt{
+    display:flex;align-items:center;gap:12px;text-align:left;width:100%;
+    border:2.5px solid var(--line);border-radius:16px;background:var(--bg);
+    padding:14px 14px;font-size:16px;font-weight:600;color:var(--ink);line-height:1.45;
+    transition:transform .1s ease, background .15s ease;min-height:56px;
+  }
+  .opt .letter{
+    flex:0 0 auto;width:32px;height:32px;border-radius:10px;border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;background:var(--card);
+  }
+  .opt:nth-child(1) .letter{background:#FFD9D2}
+  .opt:nth-child(2) .letter{background:#FFF0B8}
+  .opt:nth-child(3) .letter{background:#BDF0E4}
+  .opt:nth-child(4) .letter{background:#CFE2FF}
+  @media (prefers-color-scheme: dark){.opt .letter{color:#1A2332}}
+  .opt:active{transform:scale(.985)}
+  .opt.selected{background:var(--yellow);color:#1A2332;border-color:var(--line);box-shadow:var(--shadow-sm)}
+  .opt.selected .letter{background:var(--coral);color:#fff}
+  .quiz-hint{text-align:center;color:var(--muted);font-size:13px;margin-top:16px}
+
+  /* ---------- READY ---------- */
+  .ready-card{background:var(--card);border:3px solid var(--line);border-radius:28px;box-shadow:var(--shadow);padding:36px 24px;text-align:center}
+  .ready-emoji{font-size:64px;line-height:1}
+  .ready-card h2{font-size:26px;font-weight:900;margin:14px 0 8px}
+  .ready-card p{color:var(--muted);margin:0}
+
+  /* ---------- RESULT ---------- */
+  .result-card{background:var(--card);border:3px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden;text-align:center}
+  .result-head{padding:30px 22px 8px;position:relative}
+  .result-emoji{
+    width:104px;height:104px;margin:0 auto;border:3px solid var(--line);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:54px;box-shadow:var(--shadow-sm);
+  }
+  .result-kicker{font-size:13px;font-weight:800;letter-spacing:3px;color:var(--muted);margin:18px 0 4px}
+  .result-name{font-size:38px;font-weight:900;margin:0;line-height:1.2}
+  .result-tagline{font-size:17px;font-weight:800;margin:10px auto 0;max-width:380px}
+  .result-desc{color:var(--muted);font-size:15.5px;text-align:left;margin:18px 22px 0;line-height:1.75}
+  .traits{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:18px 22px 4px}
+  .trait{font-size:13px;font-weight:800;border:2px solid var(--line);border-radius:999px;padding:5px 13px;background:var(--bg)}
+  .match-box{margin:18px 22px 24px;border:2.5px dashed var(--line);border-radius:16px;padding:14px 16px;text-align:left;background:var(--bg)}
+  .match-box h3{margin:0 0 10px;font-size:14px;font-weight:900}
+  .match-row{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;margin-top:8px}
+  .match-row .m-name{flex:0 0 74px}
+  .match-track{flex:1;height:10px;border:2px solid var(--line);border-radius:999px;background:var(--card);overflow:hidden}
+  .match-fill{height:100%;border-radius:999px}
+  .match-pct{flex:0 0 38px;text-align:right;color:var(--muted)}
+  .share-tip{
+    margin-top:18px;border:3px solid var(--line);border-radius:20px;background:var(--yellow);color:#1A2332;
+    padding:16px 18px;font-weight:800;font-size:15.5px;text-align:center;box-shadow:var(--shadow-sm);line-height:1.6;
+  }
+  .share-tip small{display:block;font-weight:600;font-size:13px;margin-top:4px;opacity:.75}
+  .all-types{margin-top:22px}
+  .all-types h3{font-size:15px;font-weight:900;text-align:center;margin:0 0 12px;color:var(--muted);letter-spacing:1px}
+  .all-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .all-item{border:2px solid var(--line);border-radius:14px;background:var(--card);padding:10px 12px;font-size:13.5px;font-weight:700;display:flex;gap:8px;align-items:center}
+  .all-item span{font-size:20px}
+  .all-item.is-me{outline:3px solid var(--coral);outline-offset:-1px}
+  .all-item small{display:block;color:var(--muted);font-weight:600;font-size:11.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 首页 -->
+  <section class="screen active" id="screen-home">
+    <div class="badge-row">
+      <span class="pill coral">🎮 趣味测试</span>
+      <span class="pill">10 道题</span>
+      <span class="pill teal">约 1 分钟</span>
+      <span class="pill">6 种结果</span>
+    </div>
+    <div class="hero-card">
+      <svg class="controller" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+        <rect x="8" y="30" width="84" height="44" rx="22" fill="#FFC91F" stroke="#1A2332" stroke-width="4"/>
+        <path d="M32 44v16M24 52h16" stroke="#1A2332" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="66" cy="47" r="4.5" fill="#FF4D2E" stroke="#1A2332" stroke-width="2.5"/>
+        <circle cx="77" cy="58" r="4.5" fill="#00A896" stroke="#1A2332" stroke-width="2.5"/>
+        <path d="M42 22l8-8 8 8" stroke="#FF4D2E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h1>测测你是哪种<br><span class="hl">游戏玩家</span></h1>
+      <p class="lead">是天天清任务的<strong>肝帝</strong>，还是佛系看风景的<strong>休闲党</strong>？<br>凭第一感觉选，10 道题，测出你的游戏人格！</p>
+      <div class="types-preview">
+        <p>— 6 种玩家，看看你是哪一种 —</p>
+        <div class="type-grid">
+          <div class="type-chip"><span>🔥</span>肝帝<small>任务全清型</small></div>
+          <div class="type-chip"><span>🎯</span>技术大神<small>操作拉满型</small></div>
+          <div class="type-chip"><span>🍃</span>休闲玩家<small>开心第一型</small></div>
+          <div class="type-chip"><span>🎉</span>社交达人<small>开黑组局型</small></div>
+          <div class="type-chip"><span>💎</span>收集控<small>图鉴全满型</small></div>
+          <div class="type-chip"><span>📖</span>剧情党<small>沉浸故事型</small></div>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-start" type="button">开始测试 →</button>
+      <p class="fine">不用登录，不用填任何信息，放心测</p>
+    </div>
+  </section>
+
+  <!-- 答题页 -->
+  <section class="screen" id="screen-quiz">
+    <div class="quiz-top">
+      <div class="q-count">第 <b id="q-now">1</b> / 10 题</div>
+      <button class="btn-back" id="btn-prev" type="button" disabled>← 上一题</button>
+    </div>
+    <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="q-card">
+      <span class="q-tag" id="q-tag">游戏日常</span>
+      <h2 class="q-text" id="q-text"></h2>
+      <div class="options" id="options"></div>
+    </div>
+    <p class="quiz-hint">凭第一感觉选，没有对错，选完自动跳下一题</p>
+  </section>
+
+  <!-- 完成页 -->
+  <section class="screen" id="screen-ready">
+    <div class="ready-card">
+      <div class="ready-emoji">🎉</div>
+      <h2>10 道题答完啦！</h2>
+      <p>你的游戏人格已经生成，<br>准备好看看自己是哪种玩家了吗？</p>
+      <button class="btn-primary btn-teal" id="btn-result" type="button">查看结果 →</button>
+      <button class="btn-ghost" id="btn-redo1" type="button">重新答一次</button>
+    </div>
+  </section>
+
+  <!-- 结果页 -->
+  <section class="screen" id="screen-result">
+    <div class="result-card">
+      <div class="result-head">
+        <div class="result-emoji" id="r-emoji">🔥</div>
+        <p class="result-kicker">你 的 游 戏 人 格 是</p>
+        <h2 class="result-name" id="r-name"></h2>
+        <p class="result-tagline" id="r-tagline"></p>
+      </div>
+      <p class="result-desc" id="r-desc"></p>
+      <div class="traits" id="r-traits"></div>
+      <div class="match-box">
+        <h3>📊 你的人格构成（前三名）</h3>
+        <div id="r-matches"></div>
+      </div>
+    </div>
+
+    <div class="share-tip">
+      📸 截图分享给朋友，看看他们是哪种玩家！
+      <small>把这张结果图发到群里，猜猜谁是肝帝，谁是技术大神</small>
+    </div>
+
+    <button class="btn-primary" id="btn-redo2" type="button">再测一次</button>
+
+    <div class="all-types">
+      <h3>全部 6 种玩家一览</h3>
+      <div class="all-grid" id="all-grid"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+var TYPES = {
+  gan: {
+    name: "肝帝", emoji: "🔥", color: "#FF4D2E",
+    tagline: "“任务不清完，睡觉都不踏实。”",
+    desc: "你是游戏里的永动机：每日任务全清、活动一个不落、材料算得明明白白。别人玩游戏是放松，你玩游戏像上班——但你乐在其中。体力永远不够用，闹钟定得比上课还准，版本更新第一天就能把新内容摸个透。朋友眼里，你就是行走的攻略本。",
+    traits: ["任务全清", "活动必达", "自律拉满"]
+  },
+  tech: {
+    name: "技术大神", emoji: "🎯", color: "#3A86FF",
+    tagline: "“别慌，这把我来 C。”",
+    desc: "操作就是你的语言。走位、连招、反应速度全都拉满，排位上分对你来说跟喝水一样自然。越是残局你越冷静，队友最爱听到的就是你那句“跟我上”。输了不怪队友，先复盘自己的失误——这种心态，不上大神都难。",
+    traits: ["操作拉满", "残局冷静", "上分如喝水"]
+  },
+  chill: {
+    name: "休闲玩家", emoji: "🍃", color: "#00A896",
+    tagline: "“输赢不重要，开心最重要。”",
+    desc: "你是游戏圈的一股清流。段位、胜率、排行榜？都不如逛逛地图、看看风景、钓钓鱼来得舒服。输了就笑一笑，困了就下线，从不跟游戏较劲。跟你一起玩的人压力最小——因为你总能提醒大家：玩游戏，本来就是为了开心。",
+    traits: ["佛系心态", "输赢无所谓", "快乐源泉"]
+  },
+  social: {
+    name: "社交达人", emoji: "🎉", color: "#FF6B9D",
+    tagline: "“人齐了吗？齐了就开！”",
+    desc: "对你来说，游戏的本体是朋友。一个人玩再好玩的游戏都差点意思，连上麦、组上队，输赢都变成快乐。群里组局你最积极，出货了第一时间截图分享，队友心情不好你第一个发现。有你在的队伍，永远不缺笑声。",
+    traits: ["开黑组局王", "气氛担当", "朋友第一"]
+  },
+  collect: {
+    name: "收集控", emoji: "💎", color: "#9B5DE5",
+    tagline: "“还差最后一个，就全图鉴了！”",
+    desc: "图鉴差一个，你能惦记一整周。皮肤要集齐、成就也要全清、限定错过会心痛——你的游戏仓库就是一座博物馆。别人抽卡图强度，你抽卡图“有没有”；别人看数值，你看稀有度。集齐那一刻的满足感，就是你玩游戏的最大动力。",
+    traits: ["图鉴必满", "限定必拿", "仓鼠本鼠"]
+  },
+  story: {
+    name: "剧情党", emoji: "📖", color: "#F59E0B",
+    tagline: "“别催，我先把这段剧情看完。”",
+    desc: "你为故事而来。世界观、人物小传、隐藏对话，你一个都不放过；剧情到高潮时，谁喊你打排位都不好使。NPC 的一句台词能让你想很久，结局好坏能影响你一整天的心情。对你来说，游戏不是消遣，是一本可以走进去的书。",
+    traits: ["剧情全追", "世界观考据", "沉浸感第一"]
+  }
+};
+var TYPE_ORDER = ["gan","tech","chill","social","collect","story"];
+
+var QUESTIONS = [
+  {
+    tag: "游戏日常", text: "打开游戏的第一件事，你通常先干嘛？",
+    options: [
+      { t: "先清每日任务，红点一个都不能留", s: { gan: 2, collect: 1 } },
+      { t: "直接开一把排位，先找找手感", s: { tech: 2 } },
+      { t: "逛逛地图，看看风景，慢慢来", s: { chill: 2, story: 1 } },
+      { t: "先喊朋友上线，人齐了再开玩", s: { social: 2 } }
+    ]
+  },
+  {
+    tag: "团队时刻", text: "排位时队友明显坑了，你会怎么做？",
+    options: [
+      { t: "没事没事，笑着继续，游戏嘛", s: { chill: 2 } },
+      { t: "默默接管节奏，想办法靠自己翻盘", s: { tech: 2 } },
+      { t: "开麦安慰他：没事，下一把赢回来", s: { social: 2 } },
+      { t: "记下来，赛后复盘，绝不坑第二次", s: { gan: 2, tech: 1 } }
+    ]
+  },
+  {
+    tag: "心跳时刻", text: "抽卡 / 开箱出货了！你的第一反应是？",
+    options: [
+      { t: "立刻截图发群里，必须让大家看见", s: { social: 2, collect: 1 } },
+      { t: "淡定点头：嗯，还差几个就全图鉴了", s: { collect: 2 } },
+      { t: "先去看这个角色的背景故事", s: { story: 2 } },
+      { t: "赶紧拉满等级，今晚就练到毕业", s: { gan: 2 } }
+    ]
+  },
+  {
+    tag: "作息调查", text: "说实话，你会熬夜打游戏吗？",
+    options: [
+      { t: "经常，活动没刷完根本睡不着", s: { gan: 2 } },
+      { t: "偶尔，主要是和朋友开黑忘了时间", s: { social: 2 } },
+      { t: "很少，困了就下线，状态最重要", s: { chill: 2 } },
+      { t: "剧情到高潮的时候，根本停不下来", s: { story: 2 } }
+    ]
+  },
+  {
+    tag: "口味偏好", text: "单机和联机，你更偏爱哪种？",
+    options: [
+      { t: "单机，一个人沉浸在世界里最好", s: { story: 2, chill: 1 } },
+      { t: "联机，和朋友连麦才有灵魂", s: { social: 2 } },
+      { t: "竞技联机，有强对手才有挑战", s: { tech: 2 } },
+      { t: "都行，主要看哪个有限定奖励", s: { collect: 2, gan: 1 } }
+    ]
+  },
+  {
+    tag: "价值排序", text: "在游戏里，你最看重的是什么？",
+    options: [
+      { t: "胜率和段位，实力说了算", s: { tech: 2 } },
+      { t: "皮肤和外观，好看就是战斗力", s: { collect: 2 } },
+      { t: "剧情和世界观，故事打动我最重要", s: { story: 2 } },
+      { t: "和朋友一起玩的那份快乐", s: { social: 2 } }
+    ]
+  },
+  {
+    tag: "逆风时刻", text: "刚输掉一把关键对局，你接下来会？",
+    options: [
+      { t: "立刻再来一把，必须赢回来", s: { tech: 2 } },
+      { t: "先休息一下，吃点东西再说", s: { chill: 2 } },
+      { t: "拉上朋友双排，一个人输太难受了", s: { social: 2 } },
+      { t: "去刷材料升级，变强了再回来打", s: { gan: 2 } }
+    ]
+  },
+  {
+    tag: "收藏癖测试", text: "你的收藏癖有多严重？",
+    options: [
+      { t: "图鉴必须 100%，差一个浑身难受", s: { collect: 2 } },
+      { t: "成就全清才算真正通关", s: { gan: 1, collect: 2 } },
+      { t: "随缘吧，拿到什么就用什么", s: { chill: 2 } },
+      { t: "只留有故事、有纪念意义的那些", s: { story: 2 } }
+    ]
+  },
+  {
+    tag: "新游情报", text: "一款期待已久的新游戏发售，你会？",
+    options: [
+      { t: "首发当天就冲，还要抢限定特典", s: { collect: 2, gan: 1 } },
+      { t: "第一时间玩，就怕在网上被剧透", s: { story: 2 } },
+      { t: "先看朋友玩不玩，他们玩我才玩", s: { social: 2 } },
+      { t: "不急，等评价和攻略出来再说", s: { chill: 2 } }
+    ]
+  },
+  {
+    tag: "口头禅", text: "玩游戏时，你最常说的一句话是？",
+    options: [
+      { t: "“我来 C，你们跟上。”", s: { tech: 2 } },
+      { t: "“等我一下，我先做个每日。”", s: { gan: 2 } },
+      { t: "“快看这个皮肤，绝了！”", s: { collect: 2 } },
+      { t: "“别急别急，慢慢来，开心最重要。”", s: { chill: 2 } }
+    ]
+  }
+];
+
+var current = 0;
+var answers = []; // index of chosen option per question
+
+function show(id){
+  var screens = document.querySelectorAll(".screen");
+  for (var i = 0; i < screens.length; i++) screens[i].classList.remove("active");
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderQuestion(){
+  var q = QUESTIONS[current];
+  document.getElementById("q-now").textContent = current + 1;
+  document.getElementById("progress-bar").style.width = ((current) / QUESTIONS.length * 100) + "%";
+  document.getElementById("q-tag").textContent = q.tag;
+  document.getElementById("q-text").textContent = q.text;
+  document.getElementById("btn-prev").disabled = current === 0;
+  var box = document.getElementById("options");
+  box.innerHTML = "";
+  var letters = ["A", "B", "C", "D"];
+  q.options.forEach(function(opt, idx){
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "opt";
+    var letter = document.createElement("span");
+    letter.className = "letter";
+    letter.textContent = letters[idx];
+    var txt = document.createElement("span");
+    txt.textContent = opt.t;
+    btn.appendChild(letter);
+    btn.appendChild(txt);
+    btn.addEventListener("click", function(){ choose(idx, btn); });
+    box.appendChild(btn);
+  });
+}
+
+var advancing = false;
+function choose(idx, btn){
+  if (advancing) return;
+  advancing = true;
+  answers[current] = idx;
+  btn.classList.add("selected");
+  document.getElementById("progress-bar").style.width = ((current + 1) / QUESTIONS.length * 100) + "%";
+  setTimeout(function(){
+    advancing = false;
+    if (current < QUESTIONS.length - 1) {
+      current++;
+      renderQuestion();
+    } else {
+      show("screen-ready");
+    }
+  }, 300);
+}
+
+function computeResult(){
+  var scores = { gan: 0, tech: 0, chill: 0, social: 0, collect: 0, story: 0 };
+  answers.forEach(function(ansIdx, qi){
+    if (ansIdx === undefined) return;
+    var s = QUESTIONS[qi].options[ansIdx].s;
+    for (var k in s) scores[k] += s[k];
+  });
+  var total = 0;
+  for (var k2 in scores) total += scores[k2];
+  if (total === 0) total = 1;
+  var ranked = TYPE_ORDER.slice().sort(function(a, b){ return scores[b] - scores[a]; });
+  return { scores: scores, total: total, ranked: ranked, winner: ranked[0] };
+}
+
+function renderResult(){
+  var res = computeResult();
+  var w = TYPES[res.winner];
+  document.getElementById("r-emoji").textContent = w.emoji;
+  document.getElementById("r-emoji").style.background = w.color + "22";
+  document.getElementById("r-name").textContent = w.name;
+  document.getElementById("r-tagline").textContent = w.tagline;
+  document.getElementById("r-desc").textContent = w.desc;
+  var traitsBox = document.getElementById("r-traits");
+  traitsBox.innerHTML = "";
+  w.traits.forEach(function(tr){
+    var el = document.createElement("span");
+    el.className = "trait";
+    el.textContent = "#" + tr;
+    traitsBox.appendChild(el);
+  });
+  var matchBox = document.getElementById("r-matches");
+  matchBox.innerHTML = "";
+  res.ranked.slice(0, 3).forEach(function(key){
+    var pct = Math.round(res.scores[key] / res.total * 100);
+    var row = document.createElement("div");
+    row.className = "match-row";
+    var nm = document.createElement("span");
+    nm.className = "m-name";
+    nm.textContent = TYPES[key].emoji + " " + TYPES[key].name;
+    var track = document.createElement("div");
+    track.className = "match-track";
+    var fill = document.createElement("div");
+    fill.className = "match-fill";
+    fill.style.width = Math.max(pct, 4) + "%";
+    fill.style.background = TYPES[key].color;
+    track.appendChild(fill);
+    var pc = document.createElement("span");
+    pc.className = "match-pct";
+    pc.textContent = pct + "%";
+    row.appendChild(nm); row.appendChild(track); row.appendChild(pc);
+    matchBox.appendChild(row);
+  });
+  var grid = document.getElementById("all-grid");
+  grid.innerHTML = "";
+  TYPE_ORDER.forEach(function(key){
+    var item = document.createElement("div");
+    item.className = "all-item" + (key === res.winner ? " is-me" : "");
+    var em = document.createElement("span");
+    em.textContent = TYPES[key].emoji;
+    var tx = document.createElement("div");
+    tx.textContent = TYPES[key].name + (key === res.winner ? "（就是你）" : "");
+    var sm = document.createElement("small");
+    sm.textContent = TYPES[key].traits.join(" · ");
+    tx.appendChild(sm);
+    item.appendChild(em); item.appendChild(tx);
+    grid.appendChild(item);
+  });
+}
+
+function resetQuiz(){
+  current = 0;
+  answers = [];
+  renderQuestion();
+  show("screen-quiz");
+}
+
+document.getElementById("btn-start").addEventListener("click", function(){
+  current = 0; answers = [];
+  renderQuestion();
+  show("screen-quiz");
+});
+document.getElementById("btn-prev").addEventListener("click", function(){
+  if (current > 0) { current--; renderQuestion(); }
+});
+document.getElementById("btn-result").addEventListener("click", function(){
+  renderResult();
+  show("screen-result");
+});
+document.getElementById("btn-redo1").addEventListener("click", resetQuiz);
+document.getElementById("btn-redo2").addEventListener("click", function(){
+  show("screen-home");
+});
+</script>
+</body>
+</html>
